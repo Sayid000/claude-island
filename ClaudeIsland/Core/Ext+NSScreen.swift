@@ -11,8 +11,9 @@ extension NSScreen {
     /// Returns the size of the notch on this screen (pixel-perfect using macOS APIs)
     var notchSize: CGSize {
         guard safeAreaInsets.top > 0 else {
-            // Fallback for non-notch displays (matches typical MacBook notch)
-            return CGSize(width: 224, height: 38)
+            // For non-notch displays, use adaptive height based on menu bar
+            let menubarHeight = NSStatusBar.system.thickness
+            return CGSize(width: 224, height: CGFloat(menubarHeight))
         }
 
         let notchHeight = safeAreaInsets.top
