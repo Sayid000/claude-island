@@ -65,10 +65,12 @@ class NotchViewModel: ObservableObject {
     var openedSize: CGSize {
         switch contentType {
         case .chat:
-            // Large size for chat view
+            // Large size for chat view - use custom size or default
+            let customWidth = AppSettings.chatWidth > 0 ? AppSettings.chatWidth : AppSettings.defaultChatSize.width
+            let customHeight = AppSettings.chatHeight > 0 ? AppSettings.chatHeight : AppSettings.defaultChatSize.height
             return CGSize(
-                width: min(screenRect.width * 0.5, 600),
-                height: 580
+                width: min(screenRect.width * 0.5, customWidth),
+                height: customHeight
             )
         case .menu:
             // Compact size for settings menu - increased height to ensure all items fit
@@ -77,9 +79,12 @@ class NotchViewModel: ObservableObject {
                 height: 500 + screenSelector.expandedPickerHeight + soundSelector.expandedPickerHeight
             )
         case .instances:
+            // Use custom size or default
+            let customWidth = AppSettings.instancesWidth > 0 ? AppSettings.instancesWidth : AppSettings.defaultInstancesSize.width
+            let customHeight = AppSettings.instancesHeight > 0 ? AppSettings.instancesHeight : AppSettings.defaultInstancesSize.height
             return CGSize(
-                width: min(screenRect.width * 0.4, 480),
-                height: 320
+                width: min(screenRect.width * 0.4, customWidth),
+                height: customHeight
             )
         }
     }

@@ -38,6 +38,10 @@ enum AppSettings {
 
     private enum Keys {
         static let notificationSound = "notificationSound"
+        static let instancesWidth = "instancesWidth"
+        static let instancesHeight = "instancesHeight"
+        static let chatWidth = "chatWidth"
+        static let chatHeight = "chatHeight"
     }
 
     // MARK: - Notification Sound
@@ -54,5 +58,59 @@ enum AppSettings {
         set {
             defaults.set(newValue.rawValue, forKey: Keys.notificationSound)
         }
+    }
+
+    // MARK: - Window Sizes
+
+    /// Instances panel width (default: 480)
+    static var instancesWidth: CGFloat {
+        get {
+            CGFloat(defaults.float(forKey: Keys.instancesWidth))
+        }
+        set {
+            defaults.set(Float(newValue), forKey: Keys.instancesWidth)
+        }
+    }
+
+    /// Instances panel height (default: 320)
+    static var instancesHeight: CGFloat {
+        get {
+            CGFloat(defaults.float(forKey: Keys.instancesHeight))
+        }
+        set {
+            defaults.set(Float(newValue), forKey: Keys.instancesHeight)
+        }
+    }
+
+    /// Chat panel width (default: 600)
+    static var chatWidth: CGFloat {
+        get {
+            CGFloat(defaults.float(forKey: Keys.chatWidth))
+        }
+        set {
+            defaults.set(Float(newValue), forKey: Keys.chatWidth)
+        }
+    }
+
+    /// Chat panel height (default: 580)
+    static var chatHeight: CGFloat {
+        get {
+            CGFloat(defaults.float(forKey: Keys.chatHeight))
+        }
+        set {
+            defaults.set(Float(newValue), forKey: Keys.chatHeight)
+        }
+    }
+
+    // MARK: - Default Sizes
+
+    /// Default instances panel size
+    static var defaultInstancesSize: CGSize {
+        CGSize(width: 480, height: 320)
+    }
+
+    /// Default chat panel size
+    static var defaultChatSize: CGSize {
+        CGSize(width: 600, height: 580)
     }
 }
