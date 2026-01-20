@@ -223,7 +223,7 @@ struct NotchView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header row - always present, contains crab and spinner that persist across states
             headerRow
-                .frame(height: max(24, closedNotchSize.height))
+                .frame(height: closedNotchSize.height)
 
             // Main content only when opened
             if viewModel.status == .opened {
