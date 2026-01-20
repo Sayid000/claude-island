@@ -267,15 +267,24 @@ struct NotchView: View {
                 // Opened: show header content
                 openedHeaderContent
             } else if !showClosedActivity {
-                // Closed without activity: empty space
-                Rectangle()
-                    .fill(.clear)
-                    .frame(width: closedNotchSize.width - 20)
+                // Closed without activity: show conversation title or empty space
+                if AppSettings.showConversationTitle {
+                    centerConversationTitle
+                } else {
+                    Rectangle()
+                        .fill(.clear)
+                        .frame(width: closedNotchSize.width - 20)
+                }
             } else {
-                // Closed with activity: black spacer (with optional bounce)
-                Rectangle()
-                    .fill(.black)
-                    .frame(width: closedNotchSize.width - cornerRadiusInsets.closed.top + (isBouncing ? 16 : 0))
+                // Closed with activity: show conversation title or black spacer
+                if AppSettings.showConversationTitle {
+                    centerConversationTitle
+                } else {
+                    // Black spacer when title display is disabled (with optional bounce)
+                    Rectangle()
+                        .fill(.black)
+                        .frame(width: closedNotchSize.width - cornerRadiusInsets.closed.top + (isBouncing ? 16 : 0))
+                }
             }
 
             // Right side - spinner when processing/pending, checkmark when waiting for input
@@ -297,6 +306,43 @@ struct NotchView: View {
 
     private var sideWidth: CGFloat {
         max(0, closedNotchSize.height - 12) + 10
+    }
+
+    // MARK: - Center Conversation Title
+
+    /// Display the most relevant session title in the center
+    @ViewBuilder
+    private var centerConversationTitle: some View {
+        // Find the most relevant session to display
+        if let activeSession = mostRelevantSession {
+            Text(activeSession.displayTitle)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.9))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: closedNotchSize.width - 60)
+        } else {
+            Rectangle()
+                .fill(.clear)
+                .frame(width: closedNotchSize.width - 20)
+        }
+    }
+
+    /// Get the most relevant session to display in the notch
+    private var mostRelevantSession: SessionState? {
+        let instances = sessionMonitor.instances
+
+        // Priority: processing > waitingForInput > most recent activity
+        if let processing = instances.first(where: { $0.phase == .processing || $0.phase == .compacting }) {
+            return processing
+        }
+
+        if let waiting = instances.first(where: { $0.phase == .waitingForInput }) {
+            return waiting
+        }
+
+        // Return the most recently active session
+        return instances.max(by: { $0.lastActivity < $1.lastActivity })
     }
 
     // MARK: - Opened Header Content

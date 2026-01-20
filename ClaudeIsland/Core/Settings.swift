@@ -42,6 +42,7 @@ enum AppSettings {
         static let instancesHeight = "instancesHeight"
         static let chatWidth = "chatWidth"
         static let chatHeight = "chatHeight"
+        static let showConversationTitle = "showConversationTitle"
     }
 
     // MARK: - Notification Sound
@@ -112,5 +113,17 @@ enum AppSettings {
     /// Default chat panel size
     static var defaultChatSize: CGSize {
         CGSize(width: 600, height: 580)
+    }
+
+    // MARK: - Display Settings
+
+    /// Whether to show conversation title in dynamic island center
+    static var showConversationTitle: Bool {
+        get {
+            defaults.bool(forKey: Keys.showConversationTitle)
+        }
+        set {
+            defaults.set(newValue, forKey: Keys.showConversationTitle)
+        }
     }
 }

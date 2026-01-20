@@ -20,6 +20,7 @@ struct NotchMenuView: View {
     @ObservedObject private var soundSelector = SoundSelector.shared
     @State private var hooksInstalled: Bool = false
     @State private var launchAtLogin: Bool = false
+    @State private var showConversationTitle: Bool = false
 
     var body: some View {
         VStack(spacing: 4) {
@@ -40,6 +41,18 @@ struct NotchMenuView: View {
             SoundPickerRow(soundSelector: soundSelector)
             WindowSizeSettingsRow()
 
+            MenuToggleRow(
+                icon: "text.bubble",
+                label: "Show Conversation Title",
+                isOn: Binding(
+                    get: { showConversationTitle },
+                    set: { newValue in
+                        showConversationTitle = newValue
+                        AppSettings.showConversationTitle = newValue
+                    }
+                )
+            )
+
             Divider()
                 .background(Color.white.opacity(0.08))
                 .padding(.vertical, 4)
@@ -48,34 +61,40 @@ struct NotchMenuView: View {
             MenuToggleRow(
                 icon: "power",
                 label: "Launch at Login",
-                isOn: launchAtLogin
-            ) {
-                do {
-                    if launchAtLogin {
-                        try SMAppService.mainApp.unregister()
-                        launchAtLogin = false
-                    } else {
-                        try SMAppService.mainApp.register()
-                        launchAtLogin = true
+                isOn: Binding(
+                    get: { launchAtLogin },
+                    set: { newValue in
+                        do {
+                            if newValue {
+                                try SMAppService.mainApp.register()
+                                launchAtLogin = true
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                                launchAtLogin = false
+                            }
+                        } catch {
+                            print("Failed to toggle launch at login: \(error)")
+                        }
                     }
-                } catch {
-                    print("Failed to toggle launch at login: \(error)")
-                }
-            }
+                )
+            )
 
             MenuToggleRow(
                 icon: "arrow.triangle.2.circlepath",
                 label: "Hooks",
-                isOn: hooksInstalled
-            ) {
-                if hooksInstalled {
-                    HookInstaller.uninstall()
-                    hooksInstalled = false
-                } else {
-                    HookInstaller.installIfNeeded()
-                    hooksInstalled = true
-                }
-            }
+                isOn: Binding(
+                    get: { hooksInstalled },
+                    set: { newValue in
+                        if newValue {
+                            HookInstaller.installIfNeeded()
+                            hooksInstalled = true
+                        } else {
+                            HookInstaller.uninstall()
+                            hooksInstalled = false
+                        }
+                    }
+                )
+            )
 
             AccessibilityRow(isEnabled: AXIsProcessTrusted())
 
@@ -112,6 +131,7 @@ struct NotchMenuView: View {
         .frame(maxWidth: .infinity, alignment: .top)
         .onAppear {
             refreshStates()
+            showConversationTitle = AppSettings.showConversationTitle
         }
         .onChange(of: viewModel.contentType) { _, newValue in
             if newValue == .menu {
@@ -483,13 +503,15 @@ struct MenuRow: View {
 struct MenuToggleRow: View {
     let icon: String
     let label: String
-    let isOn: Bool
-    let action: () -> Void
+    @Binding var isOn: Bool
 
     @State private var isHovered = false
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            // Toggle immediately with instant feedback
+            isOn.toggle()
+        } label: {
             HStack(spacing: 10) {
                 Image(systemName: icon)
                     .font(.system(size: 12))
@@ -505,16 +527,19 @@ struct MenuToggleRow: View {
                 Circle()
                     .fill(isOn ? TerminalColors.green : Color.white.opacity(0.3))
                     .frame(width: 6, height: 6)
+                    .animation(.easeInOut(duration: 0.2), value: isOn)
 
                 Text(isOn ? "On" : "Off")
                     .font(.system(size: 11))
                     .foregroundColor(.white.opacity(0.4))
+                    .animation(.easeInOut(duration: 0.2), value: isOn)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(isHovered ? Color.white.opacity(0.08) : Color.clear)
+                    .animation(.easeInOut(duration: 0.15), value: isHovered)
             )
         }
         .buttonStyle(.plain)
