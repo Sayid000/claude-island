@@ -72,6 +72,17 @@ struct ScreenPickerRow: View {
                         collapseAfterDelay()
                     }
 
+                    // All Screens option
+                    ScreenOptionRow(
+                        label: "All Screens",
+                        sublabel: "Show on all displays",
+                        isSelected: screenSelector.selectionMode == .allScreens
+                    ) {
+                        screenSelector.selectAllScreens()
+                        triggerWindowRecreation()
+                        collapseAfterDelay()
+                    }
+
                     // Individual screens
                     ForEach(screenSelector.availableScreens, id: \.self) { screen in
                         ScreenOptionRow(
@@ -101,6 +112,8 @@ struct ScreenPickerRow: View {
                 return screen.localizedName
             }
             return "Auto"
+        case .allScreens:
+            return "All"
         }
     }
 

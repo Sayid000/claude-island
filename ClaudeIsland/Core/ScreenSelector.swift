@@ -13,6 +13,7 @@ import Foundation
 enum ScreenSelectionMode: String, Codable {
     case automatic       // Prefer built-in display, fall back to main
     case specificScreen  // User selected a specific screen
+    case allScreens      // Show on all connected screens
 }
 
 /// Persistent identifier for a screen
@@ -90,6 +91,14 @@ class ScreenSelector: ObservableObject {
         savePreferences()
     }
 
+    /// Select all screens
+    func selectAllScreens() {
+        selectionMode = .allScreens
+        savedIdentifier = nil
+        selectedScreen = nil
+        savePreferences()
+    }
+
     /// Check if a screen is currently selected
     func isSelected(_ screen: NSScreen) -> Bool {
         guard let selected = selectedScreen else { return false }
@@ -99,8 +108,8 @@ class ScreenSelector: ObservableObject {
     /// Extra height needed when picker is expanded
     var expandedPickerHeight: CGFloat {
         guard isPickerExpanded else { return 0 }
-        // +1 for "Automatic" option
-        return CGFloat(availableScreens.count + 1) * 40
+        // +2 for "Automatic" and "All Screens" options
+        return CGFloat(availableScreens.count + 2) * 40
     }
 
     // MARK: - Private Methods
@@ -122,6 +131,10 @@ class ScreenSelector: ObservableObject {
             }
             // Saved screen not found - fall back to automatic
             return NSScreen.builtin ?? NSScreen.main
+
+        case .allScreens:
+            // No single screen selected - use all screens
+            return nil
         }
     }
 

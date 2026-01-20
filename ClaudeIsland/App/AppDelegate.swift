@@ -14,7 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let userDriver: NotchUserDriver
 
     var windowController: NotchWindowController? {
-        windowManager?.windowController
+        windowManager?.windowControllers.first
     }
 
     override init() {
