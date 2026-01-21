@@ -45,6 +45,7 @@ class NotchViewModel: ObservableObject {
     @Published var openReason: NotchOpenReason = .unknown
     @Published var contentType: NotchContentType = .instances
     @Published var isHovering: Bool = false
+    @Published var isWindowSizeExpanded: Bool = false
 
     // MARK: - Dependencies
 
@@ -74,9 +75,11 @@ class NotchViewModel: ObservableObject {
             )
         case .menu:
             // Compact size for settings menu - increased height to ensure all items fit
+            let windowSizeExpandedHeight: CGFloat = isWindowSizeExpanded ? 400 : 0  // 4 rows ~ 100pt each
+            // Base height increased from 500 to 600 to accommodate new settings
             return CGSize(
                 width: min(screenRect.width * 0.4, 480),
-                height: 500 + screenSelector.expandedPickerHeight + soundSelector.expandedPickerHeight
+                height: 600 + screenSelector.expandedPickerHeight + soundSelector.expandedPickerHeight + windowSizeExpandedHeight
             )
         case .instances:
             // Use custom size or default

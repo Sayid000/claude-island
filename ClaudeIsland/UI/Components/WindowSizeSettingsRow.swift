@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WindowSizeSettingsRow: View {
-    @State private var isExpanded = false
+    @Binding var isExpanded: Bool
     @State private var isHovered = false
     @State private var instancesWidth: Double
     @State private var instancesHeight: Double
@@ -16,7 +16,15 @@ struct WindowSizeSettingsRow: View {
     @State private var chatHeight: Double
     @State private var closedNotchWidth: Double
 
-    init() {
+    /// Extra height needed when picker is expanded
+    var expandedPickerHeight: CGFloat {
+        guard isExpanded else { return 0 }
+        // Instances panel + Chat panel + 2 dividers + Closed notch = 4 rows
+        return 4 * 100  // Each row is approximately 100pt
+    }
+
+    init(isExpanded: Binding<Bool>) {
+        self._isExpanded = isExpanded
         // Load saved values or use defaults
         _instancesWidth = State(initialValue: Double(AppSettings.instancesWidth > 0 ? AppSettings.instancesWidth : 480))
         _instancesHeight = State(initialValue: Double(AppSettings.instancesHeight > 0 ? AppSettings.instancesHeight : 320))

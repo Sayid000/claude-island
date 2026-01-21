@@ -21,6 +21,7 @@ struct NotchMenuView: View {
     @State private var hooksInstalled: Bool = false
     @State private var launchAtLogin: Bool = false
     @State private var showConversationTitle: Bool = false
+    @State private var isWindowSizeExpanded: Bool = false
 
     var body: some View {
         VStack(spacing: 4) {
@@ -39,7 +40,13 @@ struct NotchMenuView: View {
             // Appearance settings
             ScreenPickerRow(screenSelector: screenSelector)
             SoundPickerRow(soundSelector: soundSelector)
-            WindowSizeSettingsRow()
+            WindowSizeSettingsRow(isExpanded: Binding(
+                get: { isWindowSizeExpanded },
+                set: { newValue in
+                    isWindowSizeExpanded = newValue
+                    viewModel.isWindowSizeExpanded = newValue
+                }
+            ))
 
             MenuToggleRow(
                 icon: "text.bubble",
