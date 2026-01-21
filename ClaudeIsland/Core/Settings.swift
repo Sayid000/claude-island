@@ -5,6 +5,7 @@
 //  App settings manager using UserDefaults
 //
 
+import AppKit
 import Foundation
 
 /// Available notification sounds
@@ -43,6 +44,7 @@ enum AppSettings {
         static let chatWidth = "chatWidth"
         static let chatHeight = "chatHeight"
         static let showConversationTitle = "showConversationTitle"
+        static let closedNotchWidth = "closedNotchWidth"
     }
 
     // MARK: - Notification Sound
@@ -125,5 +127,22 @@ enum AppSettings {
         set {
             defaults.set(newValue, forKey: Keys.showConversationTitle)
         }
+    }
+
+    // MARK: - Dynamic Island Dimensions
+
+    /// Custom width for closed notch (0 = use system default)
+    static var closedNotchWidth: CGFloat {
+        get {
+            CGFloat(defaults.float(forKey: Keys.closedNotchWidth))
+        }
+        set {
+            defaults.set(Float(newValue), forKey: Keys.closedNotchWidth)
+        }
+    }
+
+    /// Default closed notch width (menu bar height on non-notch displays)
+    static var defaultClosedNotchWidth: CGFloat {
+        CGFloat(NSStatusBar.system.thickness)
     }
 }

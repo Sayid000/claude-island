@@ -14,6 +14,7 @@ struct WindowSizeSettingsRow: View {
     @State private var instancesHeight: Double
     @State private var chatWidth: Double
     @State private var chatHeight: Double
+    @State private var closedNotchWidth: Double
 
     init() {
         // Load saved values or use defaults
@@ -21,6 +22,7 @@ struct WindowSizeSettingsRow: View {
         _instancesHeight = State(initialValue: Double(AppSettings.instancesHeight > 0 ? AppSettings.instancesHeight : 320))
         _chatWidth = State(initialValue: Double(AppSettings.chatWidth > 0 ? AppSettings.chatWidth : 600))
         _chatHeight = State(initialValue: Double(AppSettings.chatHeight > 0 ? AppSettings.chatHeight : 580))
+        _closedNotchWidth = State(initialValue: Double(AppSettings.closedNotchWidth > 0 ? AppSettings.closedNotchWidth : AppSettings.defaultClosedNotchWidth))
     }
 
     var body: some View {
@@ -87,6 +89,19 @@ struct WindowSizeSettingsRow: View {
                         onSave: {
                             AppSettings.chatWidth = CGFloat(chatWidth)
                             AppSettings.chatHeight = CGFloat(chatHeight)
+                            triggerWindowRecreation()
+                        }
+                    )
+
+                    Divider()
+                        .background(Color.white.opacity(0.1))
+
+                    // Closed notch width
+                    ClosedNotchWidthControlRow(
+                        width: $closedNotchWidth,
+                        defaultWidth: Double(AppSettings.defaultClosedNotchWidth),
+                        onSave: {
+                            AppSettings.closedNotchWidth = CGFloat(closedNotchWidth)
                             triggerWindowRecreation()
                         }
                     )
@@ -239,5 +254,72 @@ private struct SizeInput: View {
                     .fill(Color.white.opacity(0.08))
             )
         }
+    }
+}
+
+// MARK: - Closed Notch Width Control Row
+
+private struct ClosedNotchWidthControlRow: View {
+    @Binding var width: Double
+    let defaultWidth: Double
+    let onSave: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text("Closed Notch Width")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+
+                Text("(when not expanded)")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white.opacity(0.4))
+            }
+
+            HStack(spacing: 12) {
+                // Width control only
+                SizeInput(
+                    label: "W",
+                    value: $width,
+                    range: 100...400
+                )
+
+                // Reset button
+                Button {
+                    width = defaultWidth
+                    onSave()
+                } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 10))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                .buttonStyle(.plain)
+                .help("Reset to default")
+
+                Spacer()
+
+                // Apply button
+                Button {
+                    onSave()
+                } label: {
+                    Text("Apply")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.white.opacity(0.03))
+        )
     }
 }

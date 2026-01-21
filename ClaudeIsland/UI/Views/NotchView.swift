@@ -57,8 +57,17 @@ struct NotchView: View {
     // MARK: - Sizing
 
     private var closedNotchSize: CGSize {
-        CGSize(
-            width: viewModel.deviceNotchRect.width,
+        // Use custom width if set, otherwise use device notch width
+        let customWidth = AppSettings.closedNotchWidth
+        let width: CGFloat
+        if customWidth > 0 {
+            width = customWidth
+        } else {
+            width = viewModel.deviceNotchRect.width
+        }
+
+        return CGSize(
+            width: width,
             height: viewModel.deviceNotchRect.height
         )
     }
