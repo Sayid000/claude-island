@@ -22,6 +22,8 @@ struct NotchMenuView: View {
     @State private var launchAtLogin: Bool = false
     @State private var showConversationTitle: Bool = false
     @State private var isWindowSizeExpanded: Bool = false
+    @State private var showQRCode: Bool = false
+    @StateObject private var connectionInfoProvider = ConnectionInfoProvider()
 
     var body: some View {
         VStack(spacing: 4) {
@@ -125,6 +127,19 @@ struct NotchMenuView: View {
                 .background(Color.white.opacity(0.08))
                 .padding(.vertical, 4)
 
+            // iOS Companion
+            MenuRow(
+                icon: "qrcode",
+                label: "Connect iOS App"
+            ) {
+                connectionInfoProvider.generateConnectionInfo()
+                showQRCode = true
+            }
+
+            Divider()
+                .background(Color.white.opacity(0.08))
+                .padding(.vertical, 4)
+
             MenuRow(
                 icon: "xmark.circle",
                 label: "Quit",
@@ -144,6 +159,9 @@ struct NotchMenuView: View {
             if newValue == .menu {
                 refreshStates()
             }
+        }
+        .sheet(isPresented: $showQRCode) {
+            QRCodeSheet(connectionInfoProvider: connectionInfoProvider)
         }
     }
 

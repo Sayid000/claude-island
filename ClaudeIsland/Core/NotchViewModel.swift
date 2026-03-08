@@ -51,6 +51,7 @@ class NotchViewModel: ObservableObject {
 
     private let screenSelector = ScreenSelector.shared
     private let soundSelector = SoundSelector.shared
+    private let sessionMonitor = ClaudeSessionMonitor()
 
     // MARK: - Geometry
 
@@ -124,6 +125,29 @@ class NotchViewModel: ObservableObject {
 
         soundSelector.$isPickerExpanded
             .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+
+        // Listen for open session requests from iOS
+        NotificationCenter.default.publisher(for: .openSessionFromiOS)
+            .sink { [weak self] notification in
+                guard let self = self,
+                      let sessionId = notification.userInfo?["sessionId"] as? String else { return }
+
+                // Find the session with matching ID
+                if let session = self.sessionMonitor.instances.first(where: { $0.sessionId == sessionId }) {
+                    print("📱 iOS requested to open session: \(sessionId)")
+
+                    // Show the chat for this session
+                    self.showChat(for: session)
+
+                    // Open the notch if closed
+                    if self.status == .closed {
+                        self.notchOpen(reason: .notification)
+                    }
+                } else {
+                    print("⚠️ Session not found: \(sessionId)")
+                }
+            }
             .store(in: &cancellables)
     }
 

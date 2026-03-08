@@ -41,37 +41,48 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        Mixpanel.initialize(token: "49814c1436104ed108f3fc4735228496")
+        // Initialize Mixpanel (disabled for testing)
+        // Mixpanel.initialize(token: "49814c1436104ed108f3fc4735228496")
 
         let distinctId = getOrCreateDistinctId()
-        Mixpanel.mainInstance().identify(distinctId: distinctId)
+        // Mixpanel.mainInstance().identify(distinctId: distinctId)
 
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "unknown"
         let osVersion = Foundation.ProcessInfo.processInfo.operatingSystemVersionString
 
-        Mixpanel.mainInstance().registerSuperProperties([
-            "app_version": version,
-            "build_number": build,
-            "macos_version": osVersion
-        ])
+        // Mixpanel.mainInstance().registerSuperProperties([
+        //     "app_version": version,
+        //     "build_number": build,
+        //     "macos_version": osVersion
+        // ])
 
         fetchAndRegisterClaudeVersion()
 
-        Mixpanel.mainInstance().people.set(properties: [
-            "app_version": version,
-            "build_number": build,
-            "macos_version": osVersion
-        ])
+        // Mixpanel.mainInstance().people.set(properties: [
+        //     "app_version": version,
+        //     "build_number": build,
+        //     "macos_version": osVersion
+        // ])
 
-        Mixpanel.mainInstance().track(event: "App Launched")
-        Mixpanel.mainInstance().flush()
+        // Mixpanel.mainInstance().track(event: "App Launched")
+        // Mixpanel.mainInstance().flush()
 
         HookInstaller.installIfNeeded()
         NSApplication.shared.setActivationPolicy(.accessory)
 
         windowManager = WindowManager()
         _ = windowManager?.setupNotchWindow()
+
+        // Start WebSocket server for iOS companion app
+        Task {
+            do {
+                try SocketWebSocketServer.shared.start()
+                print("✅ Socket WebSocket Server started for iOS companion app")
+            } catch {
+                print("❌ Failed to start Socket WebSocket Server: \(error)")
+            }
+        }
 
         screenObserver = ScreenObserver { [weak self] in
             self?.handleScreenChange()
@@ -92,9 +103,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        Mixpanel.mainInstance().flush()
+        // Mixpanel.mainInstance().flush()
         updateCheckTimer?.invalidate()
         screenObserver = nil
+
+        // Stop WebSocket server
+        SocketWebSocketServer.shared.stop()
     }
 
     private func getOrCreateDistinctId() -> String {
@@ -168,8 +182,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                   let json = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
                   let version = json["version"] as? String else { continue }
 
-            Mixpanel.mainInstance().registerSuperProperties(["claude_code_version": version])
-            Mixpanel.mainInstance().people.set(properties: ["claude_code_version": version])
+            // Mixpanel.mainInstance().registerSuperProperties(["claude_code_version": version])
+            // Mixpanel.mainInstance().people.set(properties: ["claude_code_version": version])
             return
         }
     }

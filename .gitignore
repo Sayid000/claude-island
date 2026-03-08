@@ -41,4 +41,23 @@ releases/
 
 # Xcode backup
 *.xcodeproj.backup/
+*.xcodeproj.backup
 CLAUDE.md
+
+# Claude Code / AI tools
+.claude/
+.gemini/
+
+# Build artifacts
+*.app/
+*.aiff
+
+# Test scripts
+test_*.sh
+simulate_*.swift
+
+# iOS project (separate tracking)
+ClaudeIslandiOS/
+
+# Backup files
+*.backup
